@@ -2,7 +2,7 @@
 
 ## Description
 
-Setup a frontend and backend function to store scores and ids and display them as a leaderboard!
+Set up a backend function to store scores and ids and a frontend function to display them as a leaderboard!
 
 >💡 **Tip** 💡 You can reach the TurboOS website [here](https://os.turbo.computer/)!
 
@@ -16,9 +16,9 @@ Turbo OS has two main features that we will be using to make a leaderboard.
 
 In most uses a `client` is going to call upon a function through the backend which will utilize a `server`.
 
-In order for a function to have readable data it needs to take the data provided to it by the `client` and serialize it through borch and then store it in the `server` as a `file`
+In order for a function to have readable data it needs to take the data provided to it by the `client` and serialize it through `borsh` and then store it in the `server` as a `file`
 
-the act of serializing data can looks something like this
+The act of serializing data looks like this:
 
 ```rust
 let score = state.score;
@@ -37,15 +37,18 @@ and that filepath might look something like this
     let file_path = "file";
     let mut file = os::server::read_or!(Vec<MyStruct>, &file_path, Vec::new());
 ```
-Once that file is created on the server we can then access that data!
+The `read_or!` macro will do one of two things: 
 
-If this is all a little over your head don't worry, while I took the time to explain it, you don't need to fully understand it to utilize TurboOS
+If there is a file already at the file_path, it will return that data, deserialized to the type that you include in the first paramater. In this case, that would be `Vec<MyStruct>.
+If there is no file at that file_path, it will create a new file with the 3rd paramater as the data in the file.
+
+If this is all a little over your head don't worry, it will make more sense once you have started to practice using it!
 
 ## Frontend Variables
 
-The frontend of our project will include setting up variables for us to serialize into data the server can store. We will also need to execute the backend function from the frontend!
+The frontend of our project will include setting up variables for us to serialize into data the server can store. We will also need to execute a backend function from the frontend.
 
-lets take it one step at a time. I know I want to store a score and an ID so I'll set up a struct to do just that
+lets take it one step at a time. I want to store a score and an ID so I'll set up a struct to do just that:
 
 ```rust
 #[derive(BorshDeserialize, BorshSerialize, Debug, Clone, PartialEq)]
@@ -58,7 +61,7 @@ pub struct ScoreData {
 
 In my `gamestate` I have a `score` and `id` field so when I need to define the values of this struct I'll use those variables!
 
-I'll need to define those values when I want to submit a score. Even though we haven't setup the backend function yet I'll setup the call for it next!
+I'll need to define those values when I want to submit a score. Even though we haven't setup the backend function yet I'll setup the call for it next.
 
 ```rust
 
@@ -124,7 +127,7 @@ pub struct ScoreData {
 }
 ```
 
-Don't be confused this will not display the scores on screen but it will store them in a file. 
+To be clear, this will not display the scores on screen, it will only store them in a file on the server. 
 
 We will need a seperate function on the client side to `watch` that file so we can display the data!
 
@@ -151,9 +154,9 @@ leaderboards::submit_score exited with 0 after 0.86ms
 
 which is good, it means our `server::log` is working! Let's work on displaying this file to our game!
 
->💡 **Tip** 💡 I've assigned random names to my ID's which is why you see `Manitray` and `Bat` for my log. `server::log` is extremely useful take advantage of it.
+>💡 **Tip** 💡 I've assigned random names to my ID's which is why you see `Mantiray` and `Bat` for my log. `server::log` is extremely useful for debugging, so you should take advantage of it.
 
-The way we can `watch` a file can be done with a normal function. Lets setup a `leaderboard` function!
+Now lets setup a `leaderboard` function!
 
 ```rust
 pub fn leaderboard(state: &GameState) {
@@ -193,7 +196,7 @@ pub fn leaderboard(state: &GameState) {
 }
 ```
 
->💡 **Tip** 💡 Through use of the `os::client::watch_file` we can display the data.
+>💡 **Tip** 💡 Through use of the `os::client::watch_file` we can access (and then display) the data from the server.
 
 Now in order to have this `leaderboard` display I can just call it in the `go::loop`
 
@@ -232,6 +235,6 @@ In my project the data displays like this.
 
 Now we have a project with TurboOS storing, reading, and displaying scores! All that's left is for you to come up with the game side of it.
 
-Is it a random auto battler like [Pixel Wars](https://arfeigenbaum.itch.io/pixel-wars)? Is it a procedurely generated dungeon crawler like [Dungeon Crashing](https://bingus-productions.itch.io/dungeon-crashing)?
+Is it a procedurely generated dungeon crawler like [Dungeon Crashing](https://bingus-productions.itch.io/dungeon-crashing)?
 
 Whatever you decide to come up with know that TurboOS is a powerful tool and you've but scratched the surface of backend integrated multiplayer!
